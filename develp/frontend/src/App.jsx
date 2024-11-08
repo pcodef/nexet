@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import NavBar from "./components/NavBar.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Loading from "./pages/Loading.jsx";
@@ -6,6 +7,7 @@ import Loading from "./pages/Loading.jsx";
 const App = () => {
   return (
     <BrowserRouter>
+      <NavBar />
       <Routes>
         {/* Otras rutas de tu aplicación */}
         <Route path="/" element={<HomePage />} />
