@@ -1,0 +1,57 @@
+# Django y Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.pyo
+*.pyd
+*.whl
+*.dist-info/
+
+# Entorno virtual (virtualenv)
+env/
+venv/
+ENV/
+.venv/
+.Python
+pip-log.txt
+
+# Archivos de configuración local
+db.sqlite3
+*.sqlite3
+*.env
+*.DS_Store
+.local_settings.py
+
+# Archivos de migración
+**/migrations/
+
+# Archivos de logs
+*.log
+*.pot
+
+# Archivos de caché
+*.cache
+*.mo
+*.so
+
+# Archivos de editor y sistema operativo
+.idea/
+.vscode/
+*.swp
+*~
+*.swo
+*.swn
+
+# Archivos de compilación
+node_modules/
+staticfiles/
+static/
+media/
+dist/
+build/
+bundles/
+
