@@ -1,0 +1,22 @@
+<!-- supplier_list.html -->
+<h1>Buscar Proveedores</h1>
+<form method="get" action="{% url 'listar_suppliers' %}">
+    <input type="text" name="supplier_name" placeholder="Nombre del proveedor" value="{{ supplier_name }}">
+    <input type="number" name="page" placeholder="Página" value="{{ page }}">
+    <input type="number" name="paginate_by" placeholder="Resultados por página" value="{{ paginate_by }}">
+    <button type="submit">Buscar</button>
+</form>
+
+{% if suppliers %}
+    <h2>Proveedores Encontrados</h2>
+    <ul>
+        {% for supplier in suppliers %}
+            <li>
+                {{ supplier.name }} - 
+                <a href="{% url 'listar_ocids_contratos' supplier.id %}">Ver Contratos</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No se encontraron proveedores.</p>
+{% endif %}

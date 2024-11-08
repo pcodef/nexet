@@ -1,0 +1,42 @@
+<!-- contract_details_list.html -->
+<h1>Detalles de Contratos</h1>
+
+<form method="get" action=".">
+    <label for="contract_date_signed">Fecha de Contrato (YYYY-MM-DD):</label>
+    <input type="date" id="contract_date_signed" name="contract_date_signed" value="{{ contract_date_signed }}">
+    <button type="submit">Buscar</button>
+</form>
+
+{% if contratos_detalles %}
+    <ul>
+        {% for contrato in contratos_detalles %}
+            <li>
+                <strong>ID del Contrato (OCID):</strong> {{ contrato.contract_id }}<br>
+                
+                {% if user_type == 'buyer' %}
+                    <strong>Proveedor:</strong> 
+                    {% if contrato.supplier_id %}
+                        <a href="{% url 'listar_ocids_contratos' contrato.supplier_id %}">
+                            {{ contrato.supplier_name }}
+                        </a>
+                    {% else %}
+                        {{ contrato.supplier_name }}
+                    {% endif %}
+                    <br>
+                {% elif user_type == 'supplier' %}
+                    <strong>Comprador:</strong> 
+                    {% if contrato.buyer_id %}
+                        <a href="{% url 'listar_ocids_contratos_c' contrato.buyer_id %}">
+                            {{ contrato.buyer_name }}
+                        </a>
+                    {% else %}
+                        {{ contrato.buyer_name }}
+                    {% endif %}
+                    <br>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No se encontraron contratos para el proveedor seleccionado.</p>
+{% endif %}

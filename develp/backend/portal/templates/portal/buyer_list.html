@@ -1,0 +1,22 @@
+<!-- buyer_list.html -->
+<h1>Buscar Compradores</h1>
+<form method="get" action="{% url 'listar_buyers' %}">
+    <input type="text" name="buyer_name" placeholder="Nombre del proveedor" value="{{ buyer_name }}">
+    <input type="number" name="page" placeholder="Página" value="{{ page }}">
+    <input type="number" name="paginate_by" placeholder="Resultados por página" value="{{ paginate_by }}">
+    <button type="submit">Buscar</button>
+</form>
+
+{% if buyers %}
+    <h2>Compradores Encontrados</h2>
+    <ul>
+        {% for buyer in buyers %}
+            <li>
+                {{ buyer.name }} - 
+                <a href="{% url 'listar_ocids_contratos_c' buyer.id %}">Ver Contratos</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No se encontraron compradores.</p>
+{% endif %}
