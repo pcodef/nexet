@@ -8,8 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 import paso1 from "../assets/paso1.png";
-import paso2 from "../assets/paso1.png";
-import paso3 from "../assets/paso1.png";
+import paso2 from "../assets/paso2.png";
+import paso3 from "../assets/paso3.png";
 
 const steps = [
   {
