@@ -41,7 +41,7 @@ const TableEntProv = ({ endpoint, title, dataKey, typeEntity }) => {
         customBodyRender: (value, tableMeta) => {
           // Obtén el valor de "id" de los datos de la fila
           const id = tableMeta.rowData[0];
-          const url = `/${typeEntity}/${id}/contracts`; // Reemplaza con la URL base deseada
+          const url = `/${typeEntity}/${id}`; // Reemplaza con la URL base deseada
 
           return (
             <a href={url} target="_blank">
