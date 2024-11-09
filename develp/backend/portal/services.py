@@ -108,7 +108,7 @@ def obtener_buyers(buyer_name, page, paginate_by):
 # Para sacar info de los proveedores en el apartado proveedores
 
 def obtener_suppliers(supplier_name, page, paginate_by):
-    url = f"https://contratacionesabiertas.osce.gob.pe/api/v1/suppliers?page={page}&paginateBy={paginate_by}&supplier={supplier_name}&format=json"
+    url = f"https://contratacionesabiertas.osce.gob.pe/api/v1/suppliers?page={page}&paginateBy={paginate_by}0&order_last_process=desc&supplier={supplier_name}&format=json"
     
     response = requests.get(url)
     
