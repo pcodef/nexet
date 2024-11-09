@@ -11,7 +11,7 @@ const HeroSection = () => {
       .attr("height", "100%")
       .attr("viewBox", "0 0 800 600")
       .attr("preserveAspectRatio", "xMidYMid meet")
-      .style("opacity", 0.7); // Set the overall opacity of the SVG
+      //.style("opacity", 0.7); // Set the overall opacity of the SVG
 
     const width = 800;
     const height = 600;
@@ -32,7 +32,7 @@ const HeroSection = () => {
 
     const simulation = d3.forceSimulation(graphData.nodes)
       .force("charge", d3.forceManyBody().strength(300))
-      .force("link", d3.forceLink(graphData.links).id(d => d.name).distance(100))
+      //.force("link", d3.forceLink(graphData.links).id(d => d.name).distance(100))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collide", d3.forceCollide().radius(d => d.contrataciones * 5).strength(0.7))
       .on("tick", ticked);
@@ -128,15 +128,24 @@ const HeroSection = () => {
           zIndex: -1,
         }}
       />
-      <Typography variant="h3" gutterBottom>
-        Nexet - Monitoreo de Redes de Influencia
-      </Typography>
-      <Typography variant="h6" color="textSecondary">
-        Transparencia y rendición de cuentas en las contrataciones públicas.
-      </Typography>
-      <Button variant="contained" color="primary" sx={{ mt: 3 }}>
-        Get Started
-      </Button>
+      <Box
+        sx={{
+          backgroundColor: 'rgb(255, 255, 255)',
+          padding: '2rem',
+          borderRadius: '8px',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <Typography variant="h3" gutterBottom>
+          Nexet - Monitoreo de Redes de Influencia
+        </Typography>
+        <Typography variant="h6" color="textSecondary">
+          Transparencia y rendición de cuentas en las contrataciones públicas.
+        </Typography>
+        <Button variant="contained" color="primary" sx={{ mt: 3 }}>
+          Get Started
+        </Button>
+      </Box>
     </Box>
   );
 };
