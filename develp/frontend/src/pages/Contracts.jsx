@@ -60,6 +60,7 @@ const Contracts = () => {
               monto={item.monto}
               fecha={item.fecha}
               descripcion={item.descripcion}
+              url={item.url}
             />
           ))}
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>

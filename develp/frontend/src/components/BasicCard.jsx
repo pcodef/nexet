@@ -15,7 +15,7 @@ const bull = (
   </Box>
 );
 
-const BasicCard = ({ ocid, descripcion, fecha, title, monto }) => {
+const BasicCard = ({ ocid, descripcion, fecha, title, monto, url }) => {
   return (
     <Card variant="outlined" sx={{ minWidth: 275, mb: 2 }}>
       <CardContent>
@@ -31,7 +31,9 @@ const BasicCard = ({ ocid, descripcion, fecha, title, monto }) => {
         <Typography variant="body2">{descripcion}</Typography>
       </CardContent>
       <CardActions>
-        <Button size="small">Ver contrato</Button>
+        <Button size="small" onClick={() => window.open(`${url}`)}>
+          Ver contrato
+        </Button>
         <Button
           size="small"
           onClick={() =>
