@@ -5,6 +5,7 @@ import NotFound from "./pages/NotFound.jsx";
 import Loading from "./pages/Loading.jsx";
 import Entities from "./pages/Entities.jsx";
 import Providers from "./pages/Providers.jsx";
+import Contracts from "./pages/Contracts.jsx";
 import Graph from "./pages/Graph.jsx";
 
 const App = () => {
@@ -21,7 +22,11 @@ const App = () => {
         {/* Ruta para mostrar los proveedores */}
         <Route path="/entities/:id" element={<Graph />} />
         <Route path="/providers" element={<Providers />} />
-        <Route path="/providers/:id" element={<Graph />} />
+        {/* Ruta para mostrar los contratos entre entidad X y proveedor Y */}
+        <Route
+          path="/contracts/:identidad/:idproveedor"
+          element={<Contracts />}
+        />
         {/* Ruta 404 para manejar páginas no encontradas */}
         <Route path="*" element={<NotFound />} />
       </Routes>
