@@ -1,165 +1,40 @@
 import { Container, Button, Box } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 import BasicCard from "../components/BasicCard";
 import DescriptionTables from "../components/DescriptionTables";
+import Loading from "./Loading"; // Importa el componente Loading
 
 const Contracts = () => {
   const { identidad, idproveedor } = useParams();
-  const data = [
-    {
-      ocid: "ocds-dgv273-seacev3-1066982",
-      title: "Numero de convocatoria 1",
-      monto: "1223",
-      fecha: "2024-10-22",
-      descripcion: "Descripción de la convocatoria 1",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066983",
-      title: "Numero de convocatoria 2",
-      monto: "2456",
-      fecha: "2024-11-02",
-      descripcion: "Descripción de la convocatoria 2",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066982",
-      title: "Numero de convocatoria 1",
-      monto: "1223",
-      fecha: "2024-10-22",
-      descripcion: "Descripción de la convocatoria 1",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066983",
-      title: "Numero de convocatoria 2",
-      monto: "2456",
-      fecha: "2024-11-02",
-      descripcion: "Descripción de la convocatoria 2",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066982",
-      title: "Numero de convocatoria 1",
-      monto: "1223",
-      fecha: "2024-10-22",
-      descripcion: "Descripción de la convocatoria 1",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066983",
-      title: "Numero de convocatoria 2",
-      monto: "2456",
-      fecha: "2024-11-02",
-      descripcion: "Descripción de la convocatoria 2",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066982",
-      title: "Numero de convocatoria 1",
-      monto: "1223",
-      fecha: "2024-10-22",
-      descripcion: "Descripción de la convocatoria 1",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066983",
-      title: "Numero de convocatoria 2",
-      monto: "2456",
-      fecha: "2024-11-02",
-      descripcion: "Descripción de la convocatoria 2",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066982",
-      title: "Numero de convocatoria 1",
-      monto: "1223",
-      fecha: "2024-10-22",
-      descripcion: "Descripción de la convocatoria 1",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066983",
-      title: "Numero de convocatoria 2",
-      monto: "2456",
-      fecha: "2024-11-02",
-      descripcion: "Descripción de la convocatoria 2",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066982",
-      title: "Numero de convocatoria 1",
-      monto: "1223",
-      fecha: "2024-10-22",
-      descripcion: "Descripción de la convocatoria 1",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066983",
-      title: "Numero de convocatoria 2",
-      monto: "2456",
-      fecha: "2024-11-02",
-      descripcion: "Descripción de la convocatoria 2",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066982",
-      title: "Numero de convocatoria 1",
-      monto: "1223",
-      fecha: "2024-10-22",
-      descripcion: "Descripción de la convocatoria 1",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066983",
-      title: "Numero de convocatoria 2",
-      monto: "2456",
-      fecha: "2024-11-02",
-      descripcion: "Descripción de la convocatoria 2",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066982",
-      title: "Numero de convocatoria 1",
-      monto: "1223",
-      fecha: "2024-10-22",
-      descripcion: "Descripción de la convocatoria 1",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066983",
-      title: "Numero de convocatoria 2",
-      monto: "2456",
-      fecha: "2024-11-02",
-      descripcion: "Descripción de la convocatoria 2",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066982",
-      title: "Numero de convocatoria 1",
-      monto: "1223",
-      fecha: "2024-10-22",
-      descripcion: "Descripción de la convocatoria 1",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066983",
-      title: "Numero de convocatoria X",
-      monto: "2456",
-      fecha: "2024-11-02",
-      descripcion: "Descripción de la convocatoria 2",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066982",
-      title: "Numero de convocatoria Y",
-      monto: "1223",
-      fecha: "2024-10-22",
-      descripcion: "Descripción de la convocatoria 1",
-    },
-    {
-      ocid: "ocds-dgv273-seacev3-1066983",
-      title: "Numero de convocatoria Z",
-      monto: "2456",
-      fecha: "2024-11-02",
-      descripcion: "Descripción de la convocatoria 2",
-    },
-
-    // Agrega más objetos para simular los datos...
-  ];
-
-  const itemsPerPage = 10;
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true); // Estado de loading
   const [page, setPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // Calcula las tarjetas que se mostrarán en la página actual
+  useEffect(() => {
+    const fetchContracts = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/contracts/${identidad}/${idproveedor}`
+        );
+        setData(response.data.contracts);
+      } catch (error) {
+        console.error("Error al cargar los contratos:", error);
+      } finally {
+        setLoading(false); // Cambia el estado a falso cuando los datos se hayan cargado
+      }
+    };
+
+    fetchContracts();
+  }, [identidad, idproveedor]);
+
+  // Cálculo de los datos para la página actual
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentData = data.slice(startIndex, endIndex);
 
-  // Maneja la navegación entre páginas
   const handleNextPage = () => {
     if (endIndex < data.length) setPage(page + 1);
   };
@@ -169,31 +44,35 @@ const Contracts = () => {
   };
 
   return (
-    <>
-      <Container maxWidth="lg" sx={{ mt: 12 }}>
-        <DescriptionTables
-          title={`Contratos entre la entidad ${identidad} y proveedor ${idproveedor}`}
-        />
-        {currentData.map((item) => (
-          <BasicCard
-            key={item.ocid}
-            ocid={item.ocid}
-            title={item.title}
-            monto={item.monto}
-            fecha={item.fecha}
-            descripcion={item.descripcion}
-          />
-        ))}
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-          <Button onClick={handlePreviousPage} disabled={page === 1}>
-            Anterior
-          </Button>
-          <Button onClick={handleNextPage} disabled={endIndex >= data.length}>
-            Siguiente
-          </Button>
-        </Box>
-      </Container>
-    </>
+    <Container maxWidth="lg" sx={{ mt: 12 }}>
+      <DescriptionTables
+        title={`Contratos entre la entidad ${identidad} y proveedor ${idproveedor}`}
+      />
+      {loading ? (
+        <Loading /> // Muestra el componente Loading mientras se están cargando los datos
+      ) : (
+        <>
+          {currentData.map((item) => (
+            <BasicCard
+              key={item.ocid}
+              ocid={item.ocid}
+              title={item.convocatoria}
+              monto={item.monto}
+              fecha={item.fecha}
+              descripcion={item.descripcion}
+            />
+          ))}
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+            <Button onClick={handlePreviousPage} disabled={page === 1}>
+              Anterior
+            </Button>
+            <Button onClick={handleNextPage} disabled={endIndex >= data.length}>
+              Siguiente
+            </Button>
+          </Box>
+        </>
+      )}
+    </Container>
   );
 };
 

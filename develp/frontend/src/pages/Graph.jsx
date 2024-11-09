@@ -114,7 +114,7 @@ function GraphD3({ data, svgRef }) {
       .style("cursor", "pointer") // Change cursor on hover
       .on("click", (d) => {
         // Open a sample page for each entity
-        window.open(`https://example.com/entity/${d.id}`, "_blank");
+        window.open(`http://localhost:5173/contracts/${d.id}/${d.id}`);
       });
 
     nodeGroup
