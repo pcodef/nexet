@@ -1,243 +1,204 @@
-import React, { useEffect, useRef, useState,useParams } from 'react';
-import * as d3 from 'd3';
-import { Box, FormControl, InputLabel, Select, MenuItem, Typography, Paper, Container } from '@mui/material';
-import Footer from '../components/Footer';
+import React, { useEffect, useState, useRef } from "react";
+import { useParams, useLocation } from "react-router-dom";
+import * as d3 from "d3";
+import Loading from "./Loading";
 
-const Graph = () => {
-    const {typeEntity, id} = useParams();
-    const [data, setData] = useState([]);
-    const svgRef = useRef();
-    const [filters, setFilters] = useState({
-        year: '',
-        category: '',
-        selectionProcedure: '',
-    });
+function Graph() {
+  const { id } = useParams(); // "id" será el valor dinámico de la URL
+  const [data, setData] = useState(null);
+  const svgRef = useRef();
+  const location = useLocation(); // Para obtener la parte de la URL (entities o providers)
 
-    const entidadesPeruanas = [
-        { 
-            name: "Empresa1", 
-            contrataciones: 10,
-            year: 2022,
-            category: "A",
-            procedimientoSeleccion: "Contrato Ilicito" 
-        },
-        { 
-            name: "Empresa2", 
-            contrataciones: 20,
-            year: 2021,
-            category: "A",
-            procedimientoSeleccion: "Acuerdo de Colusión" 
-        },
-        { 
-            name: "Empresa3", 
-            contrataciones: 50,
-            year: 2024,
-            category: "A",
-            procedimientoSeleccion: "Licitación Pública" 
-        },
-        { 
-            name: "Empresa4", 
-            contrataciones: 5 ,
-            year: 2019,
-            category: "A",
-            procedimientoSeleccion: "Licitación Pública"
-        },
-        { 
-            name: "Empresa5", 
-            contrataciones: 15,
-            year: 2021,
-            category: "A",
-            procedimientoSeleccion: "Licitación Pública" 
-        },
-    ];
+  const isProvider = location.pathname.includes("providers");
 
-    const uniqueYears = [...new Set(entidadesPeruanas.map(entidad => entidad.year))];
-    const uniqueCategories = [...new Set(entidadesPeruanas.map(entidad => entidad.category))];
-    const uniqueSelectionProcedures = [...new Set(entidadesPeruanas.map(entidad => entidad.procedimientoSeleccion))];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Llama al primer endpoint y espera que termine
+        const entityType = isProvider ? "suppliers" : "buyers"; // Define qué tipo de datos usar
+        await fetch(`http://localhost:8000/api/${entityType}/${id}/contracts`);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const endpoint = `http://localhost:8000/api/${typeEntity}/${id}/contracts`;
-                const response = await axios.get(endpoint);
-                setData(response.data.contracts);
-            } catch (error) {
-                console.error('Error al cargar los datos:', error);
-            }
-        };
+        // Llama al segundo endpoint
+        const response = await fetch(`http://localhost:8000/api/node/${id}/`);
+        const json = await response.json();
 
-        fetchData();
-
-        const svg = d3.select(svgRef.current)
-            .attr('width', 800)
-            .attr('height', 600);
-
-        const width = 800;
-        const height = 600;
-
-        const filteredData = entidadesPeruanas.filter(entidad => {
-            return (
-                (filters.year ? entidad.year === filters.year : true) &&
-                (filters.category ? entidad.category === filters.category : true) &&
-                (filters.selectionProcedure ? entidad.procedimientoSeleccion === filters.selectionProcedure : true)
-            );
-        });
-
-        const graphData = {
-            nodes: filteredData.map(entidad => ({
-              name: entidad.name,
-              contrataciones: entidad.contrataciones,
+        // Transforma el JSON en el formato necesario para D3
+        const transformedData = {
+          nodes: [
+            {
+              id: json[entityType + "_id"], // Dynamically set the ID
+              name: json.name,
+              type: entityType, // Cambia a "supplier" o "buyer" según corresponda
+              contrataciones: json.contrataciones || 10,
+            },
+            ...json[isProvider ? "buyers" : "suppliers"].map((entity) => ({
+              id: entity[isProvider ? "id_sup" : "id_buyer"],
+              name: entity.name,
+              type: isProvider ? "supplier" : "buyer",
+              contrataciones: entity.contrataciones || 5,
             })),
+          ],
+          links: json[isProvider ? "buyers" : "suppliers"].map((entity) => ({
+            source: json[entityType + "_id"],
+            target: entity[isProvider ? "id_buyer" : "id_sup"],
+            weight: entity.weight,
+          })),
         };
-
-        svg.selectAll('*').remove(); // Clear previous elements
-
-        const simulation = d3.forceSimulation(graphData.nodes)
-            .force('charge', d3.forceManyBody().strength(300))
-            .force('center', d3.forceCenter(width / 2, height / 2))
-            .force('collide', d3.forceCollide().radius(d => d.contrataciones * 5).strength(0.7))
-            .on('tick', ticked);
-
-        const drag = d3.drag()
-            .on('start', dragstarted)
-            .on('drag', dragged)
-            .on('end', dragended);
-
-        const nodeGroup = svg.append('g')
-            .selectAll('g')
-            .data(graphData.nodes)
-            .enter()
-            .append('g')
-            .call(drag);
-
-        // Añadir círculos
-        nodeGroup.append('circle')
-            .attr('r', d => d.contrataciones * 4)
-            .attr('fill', 'blue');
-
-        // Añadir texto dentro de los círculos
-        nodeGroup.append('text')
-            .attr('dy', '.35em')
-            .attr('text-anchor', 'middle')
-            .attr('fill', 'white')
-            .style('font-size', '12px')
-            .text(d => d.name);
-
-            function ticked() {
-                // Aplica límites en los bordes para que los nodos "reboten"
-                graphData.nodes.forEach(d => {
-                    const radius = d.contrataciones * 3;
-    
-                    // Rebote en el borde izquierdo y derecho
-                    if (d.x - radius < 0) {
-                        d.x = radius;
-                        d.vx = -d.vx; // Cambia la dirección horizontal
-                    } else if (d.x + radius > width) {
-                        d.x = width - radius;
-                        d.vx = -d.vx; // Cambia la dirección horizontal
-                    }
-    
-                    // Rebote en el borde superior e inferior
-                    if (d.y - radius < 0) {
-                        d.y = radius;
-                        d.vy = -d.vy; // Cambia la dirección vertical
-                    } else if (d.y + radius > height) {
-                        d.y = height - radius;
-                        d.vy = -d.vy; // Cambia la dirección vertical
-                    }
-                });
-    
-                // Actualiza la posición de los nodos
-                nodeGroup.attr('transform', d => `translate(${d.x},${d.y})`);
-            }
-
-        function dragstarted(event, d) {
-            simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-        }
-
-        function dragged(event, d) {
-            d.fx = event.x;
-            d.fy = event.y;
-        }
-
-        function dragended(event, d) {
-            simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-        }
-
-        return () => {
-            simulation.stop();
-        };
-    }, [typeEntity, id, filters]);
-
-    const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-        setFilters(prevFilters => ({
-            ...prevFilters,
-            [name]: value,
-        }));
+        setData(transformedData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
 
-    return (
-        <Container maxWidth='lg' sx={{mt:12}}>
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-            {/* Sección de filtros */}
-            <Paper elevation={3} sx={{ padding: 2, backgroundColor: '#e3f2fd', width: '200px' }}>
-                <Typography variant="h6" gutterBottom>Filtros</Typography>
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>Año</InputLabel>
-                    <Select
-                        name="year"
-                        value={filters.year}
-                        onChange={handleFilterChange}
-                    >
-                        <MenuItem value=""><em>None</em></MenuItem>
-                        {uniqueYears.map(year => (
-                            <MenuItem key={year} value={year}>{year}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>Categoría</InputLabel>
-                    <Select
-                        name="category"
-                        value={filters.category}
-                        onChange={handleFilterChange}
-                    >
-                        <MenuItem value=""><em>None</em></MenuItem>
-                        {uniqueCategories.map(category => (
-                            <MenuItem key={category} value={category}>{category}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>Procedimiento Selección</InputLabel>
-                    <Select
-                        name="selectionProcedure"
-                        value={filters.selectionProcedure}
-                        onChange={handleFilterChange}
-                    >
-                        <MenuItem value=""><em>None</em></MenuItem>
-                        {uniqueSelectionProcedures.map(procedure => (
-                            <MenuItem key={procedure} value={procedure}>{procedure}</MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            </Paper>
+    fetchData();
+  }, [id]);
 
-            {/* Gráfico de burbujas */}
-            <Paper elevation={3} sx={{ padding: 2, backgroundColor: '#e3f2fd', flexGrow: 1 }}>
-                <svg ref={svgRef}></svg>
-            </Paper>
-        </Box>
-        <Footer />
-        </Container>
-        
-        
-    );
-};
+  return data ? <GraphD3 data={data} svgRef={svgRef} /> : <Loading />;
+}
+
+function GraphD3({ data, svgRef }) {
+  useEffect(() => {
+    const width = 800;
+    const height = 600;
+
+    const svg = d3
+      .select(svgRef.current)
+      .attr("width", width)
+      .attr("height", height);
+
+    svg.selectAll("*").remove(); // Limpia elementos previos
+
+    const simulation = d3
+      .forceSimulation(data.nodes)
+      .force("charge", d3.forceManyBody().strength(300))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force(
+        "collide",
+        d3
+          .forceCollide()
+          .radius((d) => d.contrataciones * 10) // Ajusta el radio para mayor separación
+          .strength(1) // Aumenta la fuerza para evitar superposición
+      )
+      .on("tick", ticked);
+
+    const drag = d3
+      .drag()
+      .on("start", (event, d) => {
+        simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      })
+      .on("drag", (event, d) => {
+        d.fx = event.x;
+        d.fy = event.y;
+      })
+      .on("end", (event, d) => {
+        simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      });
+
+    const nodeGroup = svg
+      .append("g")
+      .selectAll("g")
+      .data(data.nodes)
+      .enter()
+      .append("g")
+      .call(drag);
+
+    // Añadir círculos para nodos con tamaño dinámico
+    nodeGroup
+      .append("circle")
+      .attr("r", (d) => d.contrataciones * 10)
+      .attr("fill", (d) =>
+        d.type === "buyer" || d.type === "supplier" ? "blue" : "green"
+      );
+
+    // Añadir texto dentro de los círculos
+    nodeGroup
+      .append("text")
+      .attr("text-anchor", "middle")
+      .attr("fill", "white")
+      .style("font-weight", "bold")
+      .style("text-shadow", "1px 1px 2px rgba(0, 0, 0, 0.6)")
+      .each(function (d) {
+        // Calcular el radio del círculo
+        const radius = d.contrataciones * 16; // Ajusta el tamaño si es necesario
+
+        // Dividir el texto en líneas para ajustarse al espacio
+        const lines = wrapText(d.name, radius);
+
+        // Ajustar el tamaño de la fuente según el número de líneas
+        const fontSize = 10;
+
+        // Añadir cada línea de texto usando tspan
+        d3.select(this)
+          .selectAll("tspan")
+          .data(lines)
+          .enter()
+          .append("tspan")
+          .attr("x", 0) // Mantener el texto centrado
+          .attr("dy", (d, i) => (i === 0 ? 1 : 10)) // Ajustar el espacio entre líneas
+          .style("font-size", fontSize + "px") // Ajustar el tamaño de la fuente
+          .text((d) => d);
+      });
+
+    // Función para dividir el texto en líneas, ajustando el texto al radio del círculo
+    function wrapText(text, radius) {
+      const maxCharsPerLine = Math.floor(radius / 6); // Aproximación a la longitud máxima por línea
+      const words = text.split(" ");
+      const lines = [];
+      let currentLine = "";
+
+      words.forEach((word) => {
+        if ((currentLine + word).length > maxCharsPerLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = currentLine ? currentLine + " " + word : word;
+        }
+      });
+
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+
+      return lines;
+    }
+
+    function ticked() {
+      // Aplica límites en los bordes para que los nodos "reboten"
+      data.nodes.forEach((d) => {
+        const radius = d.contrataciones * 3;
+
+        // Rebote en el borde izquierdo y derecho
+        if (d.x - radius < 0) {
+          d.x = radius;
+          d.vx = -d.vx;
+        } else if (d.x + radius > width) {
+          d.x = width - radius;
+          d.vx = -d.vx;
+        }
+
+        // Rebote en el borde superior e inferior
+        if (d.y - radius < 0) {
+          d.y = radius;
+          d.vy = -d.vy;
+        } else if (d.y + radius > height) {
+          d.y = height - radius;
+          d.vy = -d.vy;
+        }
+      });
+
+      nodeGroup.attr("transform", (d) => `translate(${d.x},${d.y})`);
+    }
+
+    return () => {
+      simulation.stop();
+    };
+  }, [data]);
+
+  return <svg ref={svgRef}></svg>;
+}
 
 export default Graph;
