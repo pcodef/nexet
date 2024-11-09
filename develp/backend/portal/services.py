@@ -94,7 +94,10 @@ def obtener_buyers(buyer_name, page, paginate_by):
         buyers = [
             {
                 'name': result['buyer']['name'],
-                'id': result['buyer']['id']
+                'id': result['buyer']['id'],
+                'RUC': result['party']['additionalIdentifiers'][0]['id'] if result['party']['additionalIdentifiers'] else None,
+                'procesos': result['total_processes'],
+                'monto': result['total_contracts']
             }
             for result in data.get('results', [])
             if 'buyer' in result
@@ -118,7 +121,10 @@ def obtener_suppliers(supplier_name, page, paginate_by):
         suppliers = [
             {
                 'name': result['supplier']['name'],
-                'id': result['supplier']['id']
+                'id': result['supplier']['id'],
+                'RUC': result['party']['identifier']['id'],
+                'procesos': result['total_processes'],
+                'monto': result['total_contracts']
             }
             for result in data.get('results', [])
             if 'supplier' in result
