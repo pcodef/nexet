@@ -10,12 +10,14 @@ import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
+import { useNavigate } from "react-router-dom";
 
 const pages = ["Presentación", "Tutorial", "Entidades", "Proveedores"];
 
 function NavBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -27,6 +29,26 @@ function NavBar() {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const handleNavigate = (page) => {
+    switch (page) {
+      case "Presentación":
+        navigate("/presentation");
+        break;
+      case "Tutorial":
+        navigate("/tutorial");
+        break;
+      case "Entidades":
+        navigate("/entities");
+        break;
+      case "Proveedores":
+        navigate("/providers");
+        break;
+      default:
+        navigate("/");
+    }
+    handleCloseNavMenu();
   };
 
   return (
@@ -81,7 +103,7 @@ function NavBar() {
               sx={{ display: { xs: "block", md: "none" } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <MenuItem key={page} onClick={() => handleNavigate(page)}>
                   <Typography sx={{ textAlign: "center" }}>{page}</Typography>
                 </MenuItem>
               ))}
@@ -110,7 +132,7 @@ function NavBar() {
             {pages.map((page) => (
               <Button
                 key={page}
-                onClick={handleCloseNavMenu}
+                onClick={() => handleNavigate(page)}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
                 {page}

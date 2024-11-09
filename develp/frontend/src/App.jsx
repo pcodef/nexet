@@ -3,6 +3,8 @@ import NavBar from "./components/NavBar.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Loading from "./pages/Loading.jsx";
+import Entities from "./pages/Entities.jsx";
+import Providers from "./pages/Providers.jsx";
 
 const App = () => {
   return (
@@ -13,6 +15,10 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         {/* Ruta para mostrar el cargando mientras se cargan datos */}
         <Route path="/loading" element={<Loading />} />
+        {/* Ruta para mostrar las entitidades */}
+        <Route path="/entities" element={<Entities />} />
+        {/* Ruta para mostrar los proveedores */}
+        <Route path="/providers" element={<Providers />} />
         {/* Ruta 404 para manejar páginas no encontradas */}
         <Route path="*" element={<NotFound />} />
       </Routes>
