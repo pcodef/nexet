@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'nexet.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-config.DATABASE_URL = 'bolt://neo4j:12345asd@localhost:7687'
+config.DATABASE_URL = 'bolt://neo4j:nexet-graph-db@localhost:7687'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

@@ -4,12 +4,16 @@ class RelacionConPeso(StructuredRel):
     weight = IntegerProperty(default=1)
 
 class Buyer(StructuredNode):
+    id_buyer = StringProperty(required=True)
     name = StringProperty(required=True)
     contracts = RelationshipTo('Contract', 'HAS_CONTRACT')
-    suppliers = Relationship('Supplier', 'HAS_RELATIONSHIP', model=RelacionConPeso)
+    suppliers = RelationshipTo('Supplier', 'HAS_RELATIONSHIP', model=RelacionConPeso)
 
 class Supplier(StructuredNode):
+    id_sup = StringProperty(required=True)
     name = StringProperty(required=True)
+    buyers = RelationshipFrom('Buyer', 'HAS_RELATIONSHIP', model=RelacionConPeso)  # Relación con Buyer
+
 
 class Contract(StructuredNode):
     name = StringProperty(required=True)

@@ -66,8 +66,8 @@ def obtener_buyer_supplier(ocid):
 
     # Crear nodos y relaciones en la base de datos
     if buyer_name and supplier_name:
-        buyer = obtener_o_crear_buyer(buyer_name)
-        supplier = obtener_o_crear_supplier(supplier_name)
+        buyer = obtener_o_crear_buyer(buyer_name,buyer_id)
+        supplier = obtener_o_crear_supplier(supplier_name,supplier_id)
         crear_contrato(buyer, supplier, contract_id)
 
     return {
@@ -134,17 +134,17 @@ def obtener_suppliers(supplier_name, page, paginate_by):
 
 # Para el modelooo, models.py
 
-def obtener_o_crear_buyer(buyer_name):
+def obtener_o_crear_buyer(buyer_name,id_b):
     try:
-        return Buyer.nodes.get(name=buyer_name)
+        return Buyer.nodes.get(id_buyer=id_b)
     except Buyer.DoesNotExist:
-        return Buyer(name=buyer_name).save()
+        return Buyer(name=buyer_name, id_buyer=id_b).save()
 
-def obtener_o_crear_supplier(supplier_name):
+def obtener_o_crear_supplier(supplier_name,id_s):
     try:
         return Supplier.nodes.get(name=supplier_name)
     except Supplier.DoesNotExist:
-        return Supplier(name=supplier_name).save()
+        return Supplier(name=supplier_name, id_sup=id_s).save()
 
 def crear_contrato(buyer, supplier, contract_name):
     # Verificar si el contrato ya existe en la base de datos
