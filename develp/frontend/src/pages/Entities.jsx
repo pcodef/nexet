@@ -13,8 +13,8 @@ const Entities = () => {
   const getData = async () => {
     await axios.get(endpoint).then((response) => {
       const data = response.data;
-      console.log(data);
-      setEntities(data);
+      //console.log(data);
+      setEntities(data.buyers);
     });
   };
 
@@ -36,7 +36,7 @@ const Entities = () => {
       label: "RUC",
     },
     {
-      name: "nombre",
+      name: "name",
       label: "Nombre",
       options: {
         customBodyRender: (value, tableMeta) => {

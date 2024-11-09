@@ -5,16 +5,16 @@ import axios from "axios";
 
 const Providers = () => {
   //1 - configuramos Los hooks
-  const [products, setProducts] = useState([]);
+  const [providers, setProviders] = useState([]);
 
   //2 - fcion para mostrar los datos con axios
-  const endpoint = "https://fakestoreapi.com/products";
+  const endpoint = "http://localhost:8000/api/suppliers/";
 
   const getData = async () => {
     await axios.get(endpoint).then((response) => {
       const data = response.data;
-      console.log(data);
-      setProducts(data);
+      // console.log(data);
+      setProviders(data.suppliers);
     });
   };
 
@@ -27,39 +27,53 @@ const Providers = () => {
     {
       name: "id",
       label: "ID",
-    },
-    {
-      name: "title",
-      label: "TITLE",
-    },
-    {
-      name: "price",
-      label: "PRICE",
-    },
-    {
-      name: "rating", // Cambiar la clave de 'rating.rate' a 'rating'
-      label: "RATE",
       options: {
-        customBodyRender: (value) => {
-          // Asegurarse de que 'value' sea el objeto rating, y luego acceder a 'rate'
-          return value?.rate ? value.rate : "N/A";
+        display: false,
+      },
+    },
+    {
+      name: "RUC",
+      label: "RUC",
+    },
+    {
+      name: "name",
+      label: "Nombre",
+      options: {
+        customBodyRender: (value, tableMeta) => {
+          // Obtén el valor de "id" de los datos de la fila
+          const id = tableMeta.rowData[0];
+          const url = `https://example.com/${id}`; // Reemplaza con la URL base deseada
+
+          return (
+            <a href={url} target="_blank">
+              {value}
+            </a>
+          );
         },
       },
+    },
+    {
+      name: "procesos",
+      label: "Procesos",
+    },
+    {
+      name: "monto",
+      label: "Monto",
     },
   ];
 
   const options = {
     selectableRows: "none",
     responsive: "standard",
+    filter: false,
     print: false,
-    filer: false,
   };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 10 }}>
       <MUIDataTable
         title={"Lista de Proveedores"}
-        data={products}
+        data={providers}
         columns={columns}
         options={options}
       />
