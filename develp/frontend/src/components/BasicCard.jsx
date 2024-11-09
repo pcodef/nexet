@@ -17,7 +17,7 @@ const bull = (
 
 const BasicCard = ({ ocid, descripcion, fecha, title, monto }) => {
   return (
-    <Card variant="outlined" sx={{ minWidth: 275 }}>
+    <Card variant="outlined" sx={{ minWidth: 275, mb: 2 }}>
       <CardContent>
         <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
           {ocid}
@@ -31,7 +31,18 @@ const BasicCard = ({ ocid, descripcion, fecha, title, monto }) => {
         <Typography variant="body2">{descripcion}</Typography>
       </CardContent>
       <CardActions>
-        <Button size="small">Learn More</Button>
+        <Button size="small">Ver contrato</Button>
+        <Button
+          size="small"
+          onClick={() =>
+            window.open(
+              `https://contratacionesabiertas.osce.gob.pe/proceso/${ocid}`,
+              "_blank"
+            )
+          }
+        >
+          Más información
+        </Button>
         <Box sx={{ flexGrow: 1 }} /> {/* Espaciador flexible */}
         <Typography variant="body2" sx={{ color: "green", fontWeight: "bold" }}>
           {`S/ ${monto}`}
