@@ -1,137 +1,96 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 
 const Graph = () => {
     const svgRef = useRef();
+    const [filters, setFilters] = useState({
+        year: false,
+        category: false,
+        selectionProcedure: false,
+    });
 
     useEffect(() => {
         const svg = d3.select(svgRef.current)
-            .attr('width', '50%')
-            .attr('height', '50%')
-            .attr('viewBox', `0 0 800 600`)
-            .attr('preserveAspectRatio', 'xMidYMid meet');
+            .attr('width', 800)
+            .attr('height', 600);
 
         const width = 800;
         const height = 600;
 
+        // Datos de ejemplo
         const entidadesPeruanas = [
-            "Ministerio de Economía y Finanzas",
-            "Ministerio de Salud",
-            "Ministerio de Educación",
-            "Ministerio del Interior",
-            "Ministerio de Defensa",
-            "Ministerio de Transportes y Comunicaciones",
-            "Ministerio de Energía y Minas",
-            "Ministerio de Agricultura y Riego",
-            "Ministerio de la Producción",
-            "Ministerio de Comercio Exterior y Turismo",
-            "Ministerio de Vivienda, Construcción y Saneamiento",
-            "Ministerio de Trabajo y Promoción del Empleo",
-            "Ministerio de Justicia y Derechos Humanos",
-            "Ministerio de la Mujer y Poblaciones Vulnerables",
-            "Ministerio del Ambiente",
-            "Ministerio de Cultura",
-            "Ministerio de Desarrollo e Inclusión Social",
-            "Contraloría General de la República",
-            "Superintendencia Nacional de Aduanas y de Administración Tributaria (SUNAT)",
-            "Superintendencia de Banca, Seguros y AFP (SBS)",
-            "Instituto Nacional de Estadística e Informática (INEI)",
-            "Instituto Nacional de Defensa Civil (INDECI)",
-            "Instituto Nacional de Salud (INS)",
-            "Instituto Nacional de Innovación Agraria (INIA)",
-            "Instituto Nacional de Defensa de la Competencia y de la Protección de la Propiedad Intelectual (INDECOPI)",
-            "Superintendencia Nacional de Educación Superior Universitaria (SUNEDU)",
-            "Superintendencia Nacional de los Registros Públicos (SUNARP)",
-            "Superintendencia Nacional de Migraciones",
-            "Organismo Supervisor de la Inversión en Energía y Minería (OSINERGMIN)",
-            "Organismo Supervisor de la Inversión en Infraestructura de Transporte de Uso Público (OSITRAN)",
-            "Organismo Supervisor de la Inversión Privada en Telecomunicaciones (OSIPTEL)",
-            "Organismo de Evaluación y Fiscalización Ambiental (OEFA)",
-            "Servicio Nacional de Áreas Naturales Protegidas por el Estado (SERNANP)",
-            "Servicio Nacional de Meteorología e Hidrología del Perú (SENAMHI)",
-            "Servicio Nacional de Sanidad Agraria (SENASA)",
-            "Superintendencia Nacional de Fiscalización Laboral (SUNAFIL)",
-            "Superintendencia Nacional de Servicios de Saneamiento (SUNASS)",
-            "Superintendencia Nacional de Control de Servicios de Seguridad, Armas, Municiones y Explosivos de Uso Civil (SUCAMEC)",
-            "Agencia de Compras de las Fuerzas Armadas (ACFFAA)",
-            "Agencia de Promoción de la Inversión Privada (PROINVERSIÓN)",
-            "Agencia Peruana de Cooperación Internacional (APCI)",
-            "Banco Central de Reserva del Perú (BCRP)",
-            "Banco de la Nación",
-            "Comisión Nacional para el Desarrollo y Vida sin Drogas (DEVIDA)",
-            "Consejo Nacional de Ciencia, Tecnología e Innovación Tecnológica (CONCYTEC)",
-            "Defensoría del Pueblo",
-            "Registro Nacional de Identificación y Estado Civil (RENIEC)",
-            "Superintendencia Nacional de Bienes Estatales (SBN)",
-            "Superintendencia Nacional de Salud (SUSALUD)"
-          ];
-          
-          const graphData = {
+            { name: "Empresa1", contrataciones: 10 },
+            { name: "Empresa2", contrataciones: 20 },
+            { name: "Empresa3", contrataciones: 50 },
+            { name: "Empresa4", contrataciones: 5 },
+            { name: "Empresa5", contrataciones: 15 },
+        ];
+
+        const graphData = {
             nodes: entidadesPeruanas.map(entidad => ({
-              name: entidad,
-              contrataciones: Math.floor(Math.random() * 200)/15 + 1 // Genera un número aleatorio entre 1 y 200
-            }))
-          };
-
-        {/*
-            
-             nodes: [
-                { name: "Oferente A", contrataciones: 5 },
-                { name: "Oferente B", contrataciones: 3 },
-                { name: "Oferente C", contrataciones: 8 },
-                { name: "Oferente D", contrataciones: 2 }
-            ]
-
-            nodos: [
-                {
-                    "id": 3123456, proveedor o de la entidad
-                    "name": "Nombre de la empresa",
-                    "procesos" : 190
-                }
-            ]
-            Estructura de la api 
-            [
-                {
-                    "id": 12345678,
-                    "nombre": "Nombre de la empresa",
-                    "procesos": 109.95,
-                    "monto": 500.0
-                  }
-            ]
-            */}
+              name: entidad.name,
+              contrataciones: entidad.contrataciones,
+            })),
+        };
 
         const simulation = d3.forceSimulation(graphData.nodes)
-            .force('charge', d3.forceManyBody().strength(300))
-            .force('center', d3.forceCenter(width / 2, height / 2))
-            .force('collide', d3.forceCollide().radius(d => d.contrataciones * 5).strength(0.7))
-            .on('tick', ticked);
+        .force('charge', d3.forceManyBody().strength(300))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collide', d3.forceCollide().radius(d => d.contrataciones * 5).strength(0.7))
+        .on('tick', ticked);
 
         const drag = d3.drag()
             .on('start', dragstarted)
             .on('drag', dragged)
             .on('end', dragended);
 
-        const textsAndNodes = svg.append('g')
+        const nodeGroup = svg.append('g')
             .selectAll('g')
             .data(graphData.nodes)
             .enter()
             .append('g')
             .call(drag);
 
-        textsAndNodes.append('circle')
-            .attr('r', d => d.contrataciones * 5)
+        // Añadir círculos
+        nodeGroup.append('circle')
+            .attr('r', d => d.contrataciones * 4)
             .attr('fill', 'blue');
 
-        textsAndNodes.append('text')
+        // Añadir texto dentro de los círculos
+        nodeGroup.append('text')
             .attr('dy', '.35em')
             .attr('text-anchor', 'middle')
             .attr('fill', 'white')
-            .style('font-size', d => d.contrataciones * 2 + 'px')
+            .style('font-size', '12px')
             .text(d => d.name);
 
-        function ticked() {
-            textsAndNodes.attr('transform', d => `translate(${d.x},${d.y})`);
-        }
+            function ticked() {
+                // Aplica límites en los bordes para que los nodos "reboten"
+                graphData.nodes.forEach(d => {
+                    const radius = d.contrataciones * 3;
+    
+                    // Rebote en el borde izquierdo y derecho
+                    if (d.x - radius < 0) {
+                        d.x = radius;
+                        d.vx = -d.vx; // Cambia la dirección horizontal
+                    } else if (d.x + radius > width) {
+                        d.x = width - radius;
+                        d.vx = -d.vx; // Cambia la dirección horizontal
+                    }
+    
+                    // Rebote en el borde superior e inferior
+                    if (d.y - radius < 0) {
+                        d.y = radius;
+                        d.vy = -d.vy; // Cambia la dirección vertical
+                    } else if (d.y + radius > height) {
+                        d.y = height - radius;
+                        d.vy = -d.vy; // Cambia la dirección vertical
+                    }
+                });
+    
+                // Actualiza la posición de los nodos
+                nodeGroup.attr('transform', d => `translate(${d.x},${d.y})`);
+            }
 
         function dragstarted(event, d) {
             simulation.alphaTarget(0.3).restart();
@@ -149,9 +108,64 @@ const Graph = () => {
             d.fx = null;
             d.fy = null;
         }
-    }, []);
 
-    return <svg ref={svgRef}></svg>;
+        return () => {
+            simulation.stop();
+        };
+    }, [filters]);
+
+    const handleFilterChange = (e) => {
+        const { name, checked } = e.target;
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            [name]: checked,
+        }));
+    };
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+            {/* Sección de filtros */}
+            <div style={{ marginRight: '20px' }}>
+                <h3>Filtros</h3>
+                <div>
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="year"
+                            checked={filters.year}
+                            onChange={handleFilterChange}
+                        />
+                        Año
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="category"
+                            checked={filters.category}
+                            onChange={handleFilterChange}
+                        />
+                        Categoría
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="selectionProcedure"
+                            checked={filters.selectionProcedure}
+                            onChange={handleFilterChange}
+                        />
+                        Procedimiento Selección
+                    </label>
+                </div>
+            </div>
+
+            {/* Gráfico de burbujas */}
+            <svg ref={svgRef}></svg>
+        </div>
+    );
 };
 
 export default Graph;
