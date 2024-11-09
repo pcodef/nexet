@@ -8,6 +8,7 @@ urlpatterns = [
     path('api/buyers/<str:buyer_id>/contracts/', views.api_listar_contratos_por_buyer, name='api_listar_contratos_por_buyer'),
     path('api/suppliers/<str:supplier_id>/contracts/', views.api_listar_contratos_por_supplier, name='api_listar_contratos_por_supplier'),
     path('api/node/<str:node_id>/', views.obtener_datos_relacionados, name='obtener_datos_relacionados'),
+    path('api/contracts/<str:buyer_id>/<str:supplier_id>', views.obtener_contratos_relacionados, name='obtener_contratos_por_entidad'),
     
     # Endpoints existentes para páginas HTML, por las dudas xd
     path('suppliers/', views.listar_suppliers, name='listar_suppliers'),

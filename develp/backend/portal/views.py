@@ -8,6 +8,47 @@ from .services import obtener_buyer_supplier, obtener_ocids_contratos_c, obtener
 
 # Endpoint para obtener la lista de compradores
 
+def obtener_contratos_relacionados(request, buyer_id, supplier_id):
+    try:
+        # Buscar el Buyer por su ID
+        try:
+            buyer = Buyer.nodes.get(id_buyer=buyer_id)
+        except Buyer.DoesNotExist:
+            return JsonResponse({'error': 'Buyer not found'}, status=404)
+
+        # Buscar el Supplier por su ID
+        try:
+            supplier = Supplier.nodes.get(id_sup=supplier_id)
+        except Supplier.DoesNotExist:
+            return JsonResponse({'error': 'Supplier not found'}, status=404)
+
+        # Obtener los contratos relacionados con el Buyer y el Supplier
+        contratos_data = []
+        for contrato in buyer.contracts.all():  # Obtener todos los contratos asociados al Buyer
+            # Verificar si el contrato también está relacionado con el Supplier
+            if contrato.supplier.is_connected(supplier):
+                contratos_data.append({
+                    'contract_name': contrato.name
+                })
+
+        # Devolver la respuesta en formato JSON
+        data = {
+            'buyer_id': buyer.id_buyer,
+            'buyer_name': buyer.name,
+            'supplier_id': supplier.id_sup,
+            'supplier_name': supplier.name,
+            'contracts': contratos_data
+        }
+
+        return JsonResponse(data)
+
+    except Exception as e:
+        # Manejar cualquier error inesperado
+        print("Error:", e)
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
 def obtener_datos_relacionados(request, node_id):
     try:
         # Intentar obtener el Buyer por el ID
