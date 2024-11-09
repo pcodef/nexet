@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render
+import requests
 
 from .models import Buyer,Supplier
 from .services import obtener_buyer_supplier, obtener_ocids_contratos_c, obtener_suppliers, obtener_ocids_contratos, obtener_buyers
@@ -7,6 +8,73 @@ from .services import obtener_buyer_supplier, obtener_ocids_contratos_c, obtener
 #######END
 
 # Endpoint para obtener la lista de compradores
+
+def obtener_contratos_relacionados(request, buyer_id, supplier_id):
+    try:
+        # Buscar el Buyer por su ID
+        try:
+            buyer = Buyer.nodes.get(id_buyer=buyer_id)
+        except Buyer.DoesNotExist:
+            return JsonResponse({'error': 'Buyer not found'}, status=404)
+
+        # Buscar el Supplier por su ID
+        try:
+            supplier = Supplier.nodes.get(id_sup=supplier_id)
+        except Supplier.DoesNotExist:
+            return JsonResponse({'error': 'Supplier not found'}, status=404)
+
+        # Obtener los contratos relacionados con el Buyer y el Supplier
+        contratos_data = []
+        for contrato in buyer.contracts.all():
+            # Verificar si el contrato está relacionado con el Supplier
+            if contrato.supplier.is_connected(supplier):
+                # Realizar la solicitud a la API externa para obtener los detalles del contrato
+                ocid = contrato.name  # Asumiendo que contrato.name es el código OCID
+                url = f"https://contratacionesabiertas.osce.gob.pe/api/v1/record/{ocid}"
+                response = requests.get(url)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    record = data.get("records", [])[0]
+                    compiled_release = record.get("compiledRelease", {})
+                    tender = compiled_release.get("tender", {})
+                    contracts = compiled_release.get("contracts", [{}])[0]
+
+                    # Buscar la URL del documento que tenga el título "Archivos del contrato"
+                    documentos = contracts.get("documents", [])
+                    archivo_contrato_url = next(
+                        (doc.get("url") for doc in documentos if doc.get("title") == "Archivos del contrato"),
+                        None
+                    )
+
+                    # Estructura los datos según el formato requerido
+                    contratos_data.append({
+                        "ocid": compiled_release.get("ocid"),
+                        "convocatoria": tender.get("id"),
+                        "fecha": contracts.get("dateSigned"),
+                        "descripcion": contracts.get("description"),
+                        "monto": contracts.get("value", {}).get("amount"),
+                        "url": archivo_contrato_url
+                    })
+
+        # Devolver la respuesta en formato JSON
+        data = {
+            "buyer_id": buyer.id_buyer,
+            "buyer_name": buyer.name,
+            "supplier_id": supplier.id_sup,
+            "supplier_name": supplier.name,
+            "contracts": contratos_data
+        }
+
+        return JsonResponse(data)
+
+    except Exception as e:
+        # Manejar cualquier error inesperado
+        print("Error:", e)
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
 
 def obtener_datos_relacionados(request, node_id):
     try:
