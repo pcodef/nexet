@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import * as d3 from "d3";
 import Loading from "./Loading";
+import { Container } from "@mui/material";
 
 function Graph() {
   const { id } = useParams();
@@ -42,7 +43,13 @@ function Graph() {
     fetchData();
   }, [id]);
 
-  return data ? <GraphD3 data={data} svgRef={svgRef} id={id} isProvider={isProvider} /> : <Loading />;
+  return data ? (
+    <Container maxWidth="lg" sx={{ mt: 12, border: "solid" }}>
+      <GraphD3 data={data} svgRef={svgRef} id={id} isProvider={isProvider} />
+    </Container>
+  ) : (
+    <Loading />
+  );
 }
 
 function GraphD3({ data, svgRef, id, isProvider }) {
@@ -126,7 +133,7 @@ function GraphD3({ data, svgRef, id, isProvider }) {
       .style("font-weight", "bold")
       .style("text-shadow", "1px 1px 2px rgba(0, 0, 0, 0.6)")
       .each(function (d) {
-        const radius = d.weight * 16;
+        const radius = d.weight * 20;
         const lines = wrapText(d.name, radius);
         const fontSize = 10;
 
@@ -136,7 +143,7 @@ function GraphD3({ data, svgRef, id, isProvider }) {
           .enter()
           .append("tspan")
           .attr("x", 0)
-          .attr("dy", (d, i) => (i === 0 ? 1 : 10))
+          .attr("dy", (d, i) => (i === 0 ? 5 : 10))
           .style("font-size", fontSize + "px")
           .text((d) => d);
       });
