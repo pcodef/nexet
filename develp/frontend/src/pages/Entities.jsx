@@ -10,10 +10,7 @@ const Entities = () => {
     <Container maxWidth="lg" sx={{ mt: 12 }}>
       <DescriptionTables
         title="Entidades"
-        description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus
-          culpa doloribus ipsa nihil? Laudantium, facere, facilis id quisquam
-          veniam rerum expedita laborum, a aperiam minima molestias iure. Nam,
-          rem vero."
+        description="Organizaciones o instituciones públicas que requieren bienes, servicios u obras y, por lo tanto, inician procesos de contratación para satisfacer esas necesidades. Estas entidades pueden ser ministerios, gobiernos regionales, municipalidades, organismos descentralizados, empresas públicas, entre otros organismos del Estado. "
       />
       <TableEntProv
         title="Lista de Entidades"

@@ -10,10 +10,7 @@ const Providers = () => {
     <Container maxWidth="lg" sx={{ mt: 12 }}>
       <DescriptionTables
         title="Proveedores"
-        description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus
-          culpa doloribus ipsa nihil? Laudantium, facere, facilis id quisquam
-          veniam rerum expedita laborum, a aperiam minima molestias iure. Nam,
-          rem vero."
+        description="Personas naturales o jurídicas (empresas) que ofrecen bienes, servicios u obras a las entidades públicas a través de procesos de contratación. Los proveedores pueden participar en las convocatorias lanzadas por las entidades, presentando propuestas que serán evaluadas para determinar su adecuación a los requisitos del contrato."
       />
       <TableEntProv
         title="Lista de Proveedores"

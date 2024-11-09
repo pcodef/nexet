@@ -156,7 +156,12 @@ const HeroSection = () => {
         <Typography variant="h6" color="textSecondary">
           Transparencia y rendición de cuentas en las contrataciones públicas.
         </Typography>
-        <Button variant="contained" color="primary" sx={{ mt: 3 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ mt: 3 }}
+          onClick={() => window.open(`/entities`, "_self")}
+        >
           Get Started
         </Button>
       </Box>

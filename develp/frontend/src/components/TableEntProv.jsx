@@ -43,11 +43,7 @@ const TableEntProv = ({ endpoint, title, dataKey, typeEntity }) => {
           const id = tableMeta.rowData[0];
           const url = `/${typeEntity}/${id}`; // Reemplaza con la URL base deseada
 
-          return (
-            <a href={url} target="_blank">
-              {value}
-            </a>
-          );
+          return <a href={url}>{value}</a>;
         },
       },
     },

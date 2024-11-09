@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 const pages = ["Presentación", "Tutorial", "Entidades", "Proveedores"];
 
-function NavBar() {
+function NavBar({ scrollToSection }) {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const navigate = useNavigate();
@@ -34,10 +34,10 @@ function NavBar() {
   const handleNavigate = (page) => {
     switch (page) {
       case "Presentación":
-        navigate("/presentation");
+        scrollToSection("top");
         break;
       case "Tutorial":
-        navigate("/tutorial");
+        scrollToSection("howItWorks");
         break;
       case "Entidades":
         navigate("/entities");
