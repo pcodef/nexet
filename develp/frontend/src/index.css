@@ -1,0 +1,72 @@
+/* Reset de márgenes y rellenos para todos los elementos */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Configuración de fuentes básicas */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.5;
+  color: #333;
+  background-color: #fff;
+}
+
+/* Establece la visualización de los elementos de bloque */
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Elimina los estilos predeterminados de listas */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Elimina subrayado en enlaces */
+a {
+  text-decoration: none;
+}
+
+/* Configuración básica de tablas */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* Ajustes de imagen */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Establece el comportamiento de los formularios */
+input,
+textarea,
+button,
+select {
+  font: inherit;
+  border: none;
+  background: transparent;
+}
+
+/* Estilos básicos para formularios */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
+/* Propiedades de transición suaves */
+* {
+  transition: all 0.3s ease;
+}
