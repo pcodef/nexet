@@ -19,6 +19,7 @@ const Entities = () => {
         title="Lista de Entidades"
         endpoint={endpoint}
         dataKey="buyers"
+        typeEntity="entities"
       />
     </Container>
   );

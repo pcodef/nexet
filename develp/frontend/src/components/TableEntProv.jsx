@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
 import axios from "axios";
 
-const TableEntProv = ({ endpoint, title, dataKey }) => {
+const TableEntProv = ({ endpoint, title, dataKey, typeEntity }) => {
   const [data, setData] = useState([]);
 
   // Cargar datos desde el endpoint
@@ -41,7 +41,7 @@ const TableEntProv = ({ endpoint, title, dataKey }) => {
         customBodyRender: (value, tableMeta) => {
           // Obtén el valor de "id" de los datos de la fila
           const id = tableMeta.rowData[0];
-          const url = `https://example.com/${id}`; // Reemplaza con la URL base deseada
+          const url = `/${typeEntity}/${id}`; // Reemplaza con la URL base deseada
 
           return (
             <a href={url} target="_blank">

@@ -19,6 +19,7 @@ const Providers = () => {
         title="Lista de Proveedores"
         endpoint={endpoint}
         dataKey="suppliers"
+        typeEntity="providers"
       />
     </Container>
   );
