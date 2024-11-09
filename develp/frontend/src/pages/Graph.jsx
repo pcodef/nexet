@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { Box, FormControl, InputLabel, Select, MenuItem, Typography, Paper } from '@mui/material';
+import { Box, FormControl, InputLabel, Select, MenuItem, Typography, Paper, Container } from '@mui/material';
+import Footer from '../components/Footer';
 
 const Graph = () => {
     const svgRef = useRef();
@@ -167,7 +168,8 @@ const Graph = () => {
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+        <Container maxWidth='lg' sx={{mt:12}}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
             {/* Sección de filtros */}
             <Paper elevation={3} sx={{ padding: 2, backgroundColor: '#e3f2fd', width: '200px' }}>
                 <Typography variant="h6" gutterBottom>Filtros</Typography>
@@ -217,6 +219,10 @@ const Graph = () => {
                 <svg ref={svgRef}></svg>
             </Paper>
         </Box>
+        <Footer />
+        </Container>
+        
+        
     );
 };
 
