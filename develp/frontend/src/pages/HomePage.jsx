@@ -18,7 +18,6 @@ const HomePage = () => {
       <Testimonials />
       <CTA />
       <Footer />
-      < Graph />
     </>
   );
 };
