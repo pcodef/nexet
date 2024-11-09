@@ -22,9 +22,9 @@ function Graph() {
         const transformedData = {
           title: json.name,
           nodes: json[isProvider ? "buyers" : "suppliers"].map((entity) => ({
-            id: entity[isProvider ? "id_sup" : "id_buyer"],
+            id: entity[isProvider ? "id_buyer" : "id_sup"], // Correct `id` for each node
             name: entity.name,
-            type: "supplier",
+            type: isProvider ? "buyer" : "supplier", // Define type based on context
             weight: entity.weight,
           })),
           links: json[isProvider ? "buyers" : "suppliers"].map((entity) => ({
@@ -42,13 +42,13 @@ function Graph() {
     fetchData();
   }, [id]);
 
-  return data ? <GraphD3 data={data} svgRef={svgRef} /> : <Loading />;
+  return data ? <GraphD3 data={data} svgRef={svgRef} id={id} isProvider={isProvider} /> : <Loading />;
 }
 
-function GraphD3({ data, svgRef }) {
+function GraphD3({ data, svgRef, id, isProvider }) {
   useEffect(() => {
-    const width = 800;
-    const height = 600;
+    const width = 1000;
+    const height = 800;
 
     const svg = d3
       .select(svgRef.current)
@@ -112,9 +112,11 @@ function GraphD3({ data, svgRef }) {
       .attr("r", (d) => d.weight * 40)
       .attr("fill", (d) => colorScale(d.weight))
       .style("cursor", "pointer") // Change cursor on hover
-      .on("click", (d) => {
-        // Open a sample page for each entity
-        window.open(`http://localhost:5173/contracts/${d.id}/${d.id}`);
+      .on("click", (event, d) => {
+        // Construct the URL with the correct `id` values
+        const targetType = isProvider ? "buyers" : "suppliers";
+        const url = `http://localhost:5173/contracts/${id}/${d.id}`;
+        window.open(url);
       });
 
     nodeGroup
