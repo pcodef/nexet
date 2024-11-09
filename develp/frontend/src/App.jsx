@@ -20,8 +20,9 @@ const App = () => {
         {/* Ruta para mostrar las entitidades */}
         <Route path="/entities" element={<Entities />} />
         {/* Ruta para mostrar los proveedores */}
-        <Route path="/entities/:id" element={<Graph />} />
+        <Route path="/entities/:id/contracts/" element={<Graph />} />
         <Route path="/providers" element={<Providers />} />
+        <Route path="/providers/:id/contracts/" element={<Graph />} />
         {/* Ruta para mostrar los contratos entre entidad X y proveedor Y */}
         <Route
           path="/contracts/:identidad/:idproveedor"

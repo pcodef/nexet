@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState,useParams } from 'react';
 import * as d3 from 'd3';
 import { Box, FormControl, InputLabel, Select, MenuItem, Typography, Paper, Container } from '@mui/material';
 import Footer from '../components/Footer';
 
 const Graph = () => {
+    const {typeEntity, id} = useParams();
+    const [data, setData] = useState([]);
     const svgRef = useRef();
     const [filters, setFilters] = useState({
         year: '',
@@ -54,6 +56,18 @@ const Graph = () => {
     const uniqueSelectionProcedures = [...new Set(entidadesPeruanas.map(entidad => entidad.procedimientoSeleccion))];
 
     useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const endpoint = `http://localhost:8000/api/${typeEntity}/${id}/contracts`;
+                const response = await axios.get(endpoint);
+                setData(response.data.contracts);
+            } catch (error) {
+                console.error('Error al cargar los datos:', error);
+            }
+        };
+
+        fetchData();
+
         const svg = d3.select(svgRef.current)
             .attr('width', 800)
             .attr('height', 600);
@@ -157,7 +171,7 @@ const Graph = () => {
         return () => {
             simulation.stop();
         };
-    }, [filters]);
+    }, [typeEntity, id, filters]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
