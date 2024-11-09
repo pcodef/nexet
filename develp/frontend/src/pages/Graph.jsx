@@ -4,42 +4,31 @@ import * as d3 from "d3";
 import Loading from "./Loading";
 
 function Graph() {
-  const { id } = useParams(); // "id" será el valor dinámico de la URL
+  const { id } = useParams();
   const [data, setData] = useState(null);
   const svgRef = useRef();
-  const location = useLocation(); // Para obtener la parte de la URL (entities o providers)
-
+  const location = useLocation();
   const isProvider = location.pathname.includes("providers");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Llama al primer endpoint y espera que termine
-        const entityType = isProvider ? "suppliers" : "buyers"; // Define qué tipo de datos usar
+        const entityType = isProvider ? "suppliers" : "buyers";
         await fetch(`http://localhost:8000/api/${entityType}/${id}/contracts`);
 
-        // Llama al segundo endpoint
         const response = await fetch(`http://localhost:8000/api/node/${id}/`);
         const json = await response.json();
 
-        // Transforma el JSON en el formato necesario para D3
         const transformedData = {
-          nodes: [
-            {
-              id: json[entityType + "_id"], // Dynamically set the ID
-              name: json.name,
-              type: entityType, // Cambia a "supplier" o "buyer" según corresponda
-              contrataciones: json.contrataciones || 10,
-            },
-            ...json[isProvider ? "buyers" : "suppliers"].map((entity) => ({
-              id: entity[isProvider ? "id_sup" : "id_buyer"],
-              name: entity.name,
-              type: isProvider ? "supplier" : "buyer",
-              contrataciones: entity.contrataciones || 5,
-            })),
-          ],
+          title: json.name,
+          nodes: json[isProvider ? "buyers" : "suppliers"].map((entity) => ({
+            id: entity[isProvider ? "id_sup" : "id_buyer"],
+            name: entity.name,
+            type: "supplier",
+            weight: entity.weight,
+          })),
           links: json[isProvider ? "buyers" : "suppliers"].map((entity) => ({
-            source: json[entityType + "_id"],
+            source: id,
             target: entity[isProvider ? "id_buyer" : "id_sup"],
             weight: entity.weight,
           })),
@@ -66,7 +55,18 @@ function GraphD3({ data, svgRef }) {
       .attr("width", width)
       .attr("height", height);
 
-    svg.selectAll("*").remove(); // Limpia elementos previos
+    svg.selectAll("*").remove();
+
+    svg
+      .append("text")
+      .attr("x", width / 2)
+      .attr("y", 100)
+      .attr("text-anchor", "middle")
+      .style("font-size", "24px")
+      .style("font-weight", "bold")
+      .text(`CONTRATOS CON: ${data.title}`);
+
+    const colorScale = d3.scaleLinear().domain([1, 10]).range(["blue", "red"]);
 
     const simulation = d3
       .forceSimulation(data.nodes)
@@ -76,8 +76,8 @@ function GraphD3({ data, svgRef }) {
         "collide",
         d3
           .forceCollide()
-          .radius((d) => d.contrataciones * 10) // Ajusta el radio para mayor separación
-          .strength(1) // Aumenta la fuerza para evitar superposición
+          .radius((d) => d.weight * 50)
+          .strength(1)
       )
       .on("tick", ticked);
 
@@ -106,15 +106,17 @@ function GraphD3({ data, svgRef }) {
       .append("g")
       .call(drag);
 
-    // Añadir círculos para nodos con tamaño dinámico
+    // Add circles with `onClick` to open a new page and cursor style
     nodeGroup
       .append("circle")
-      .attr("r", (d) => d.contrataciones * 10)
-      .attr("fill", (d) =>
-        d.type === "buyer" || d.type === "supplier" ? "blue" : "green"
-      );
+      .attr("r", (d) => d.weight * 40)
+      .attr("fill", (d) => colorScale(d.weight))
+      .style("cursor", "pointer") // Change cursor on hover
+      .on("click", (d) => {
+        // Open a sample page for each entity
+        window.open(`https://example.com/entity/${d.id}`, "_blank");
+      });
 
-    // Añadir texto dentro de los círculos
     nodeGroup
       .append("text")
       .attr("text-anchor", "middle")
@@ -122,30 +124,23 @@ function GraphD3({ data, svgRef }) {
       .style("font-weight", "bold")
       .style("text-shadow", "1px 1px 2px rgba(0, 0, 0, 0.6)")
       .each(function (d) {
-        // Calcular el radio del círculo
-        const radius = d.contrataciones * 16; // Ajusta el tamaño si es necesario
-
-        // Dividir el texto en líneas para ajustarse al espacio
+        const radius = d.weight * 16;
         const lines = wrapText(d.name, radius);
-
-        // Ajustar el tamaño de la fuente según el número de líneas
         const fontSize = 10;
 
-        // Añadir cada línea de texto usando tspan
         d3.select(this)
           .selectAll("tspan")
           .data(lines)
           .enter()
           .append("tspan")
-          .attr("x", 0) // Mantener el texto centrado
-          .attr("dy", (d, i) => (i === 0 ? 1 : 10)) // Ajustar el espacio entre líneas
-          .style("font-size", fontSize + "px") // Ajustar el tamaño de la fuente
+          .attr("x", 0)
+          .attr("dy", (d, i) => (i === 0 ? 1 : 10))
+          .style("font-size", fontSize + "px")
           .text((d) => d);
       });
 
-    // Función para dividir el texto en líneas, ajustando el texto al radio del círculo
     function wrapText(text, radius) {
-      const maxCharsPerLine = Math.floor(radius / 6); // Aproximación a la longitud máxima por línea
+      const maxCharsPerLine = Math.floor(radius / 6);
       const words = text.split(" ");
       const lines = [];
       let currentLine = "";
@@ -167,11 +162,9 @@ function GraphD3({ data, svgRef }) {
     }
 
     function ticked() {
-      // Aplica límites en los bordes para que los nodos "reboten"
       data.nodes.forEach((d) => {
-        const radius = d.contrataciones * 3;
+        const radius = d.weight * 3;
 
-        // Rebote en el borde izquierdo y derecho
         if (d.x - radius < 0) {
           d.x = radius;
           d.vx = -d.vx;
@@ -180,7 +173,6 @@ function GraphD3({ data, svgRef }) {
           d.vx = -d.vx;
         }
 
-        // Rebote en el borde superior e inferior
         if (d.y - radius < 0) {
           d.y = radius;
           d.vy = -d.vy;
